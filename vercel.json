@@ -1,0 +1,18 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "installCommand": "npm install",
+  "regions": ["sfo1"],
+  "functions": {
+    "app/api/concerts/route.ts": {
+      "maxDuration": 30
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/concerts",
+      "schedule": "0 */1 * * *"
+    }
+  ]
+}
