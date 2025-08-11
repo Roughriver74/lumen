@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { BlobStorage } from '@/lib/blob/storage'
 
-export const revalidate = 3600 // Cache for 1 hour
+export const revalidate = 1800 // Cache for 30 minutes
 
 export async function GET() {
   try {

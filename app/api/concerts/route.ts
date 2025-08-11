@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { BlobStorage } from '@/lib/blob/storage'
 import { Concert as LegacyConcert } from '@/lib/types/concert'
 
-export const revalidate = 3600 // Revalidate every hour
+export const revalidate = 300 // Revalidate every 5 minutes (ISR)
 
 export async function GET() {
   try {
