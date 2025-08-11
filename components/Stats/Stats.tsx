@@ -9,8 +9,8 @@ export default function Stats({ concerts }: StatsProps) {
   const stats = calculateStats(concerts)
 
   return (
-    <div className="bg-white/90 rounded-xl p-4 mt-6 shadow-lg">
-      <h3 className="text-lg font-bold text-lumen-purple mb-4 text-center">
+    <div className="glass-card p-4">
+      <h3 className="text-lg font-bold mb-4 text-center text-gray-800">
         📊 Статистика тура
       </h3>
       <div className="grid grid-cols-2 gap-3">
@@ -25,8 +25,8 @@ export default function Stats({ concerts }: StatsProps) {
 
 function StatItem({ value, label }: { value: string | number; label: string }) {
   return (
-    <div className="bg-gradient-to-r from-lumen-purple/10 to-lumen-pink/10 p-3 rounded-lg text-center">
-      <div className="text-2xl font-bold text-lumen-purple">{value}</div>
+    <div className="p-3 rounded-lg text-center bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-100">
+      <div className="text-2xl font-bold text-purple-600">{value}</div>
       <div className="text-xs text-gray-600">{label}</div>
     </div>
   )

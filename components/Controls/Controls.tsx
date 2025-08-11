@@ -23,18 +23,15 @@ export default function Controls({
   ]
 
   return (
-    <div className="bg-black/70 backdrop-blur-md p-4">
-      <div className="flex flex-wrap justify-center gap-4">
+    <div className="glass-dark p-3 sm:p-4 mx-3 sm:mx-6 mt-3 sm:mt-4 rounded-xl">
+      <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
         {filters.map(filter => (
           <button
             key={filter.value}
             onClick={() => onFilterChange(filter.value)}
             className={cn(
-              'px-5 py-2 rounded-full text-white font-medium transition-all duration-300',
-              'shadow-lg hover:-translate-y-0.5 hover:shadow-xl',
-              currentFilter === filter.value
-                ? 'bg-gradient-to-r from-lumen-orange to-orange-500'
-                : 'bg-gradient-to-r from-lumen-purple to-lumen-pink'
+              "btn-primary smooth-transition text-sm sm:text-base px-3 sm:px-5 py-1.5 sm:py-2",
+              currentFilter === filter.value && "active"
             )}
           >
             {filter.label}
@@ -44,16 +41,17 @@ export default function Controls({
           <button
             onClick={onRefresh}
             disabled={isLoading}
-            className="px-5 py-2 rounded-full text-white font-medium transition-all duration-300
-                     bg-gradient-to-r from-green-500 to-green-600
-                     shadow-lg hover:-translate-y-0.5 hover:shadow-xl disabled:opacity-50"
+            className={cn(
+              "btn-primary btn-success smooth-transition text-sm sm:text-base px-3 sm:px-5 py-1.5 sm:py-2",
+              isLoading && "opacity-50 cursor-not-allowed"
+            )}
           >
-            {isLoading ? '⏳ Загрузка...' : '🔄 Обновить данные'}
+            {isLoading ? '⏳ Загрузка...' : '🔄 Обновить'}
           </button>
         )}
       </div>
       {isLoading && (
-        <div className="text-center text-white mt-3 text-sm">
+        <div className="text-center text-white mt-2 sm:mt-3 text-xs sm:text-sm animate-pulse">
           Загрузка актуальных данных...
         </div>
       )}

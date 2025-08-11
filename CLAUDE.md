@@ -63,9 +63,10 @@ vercel --prod     # Deploy to production
 ## Architecture Decisions
 
 ### Data Fetching Strategy
-- **Server-side**: API routes handle web scraping to bypass CORS
-- **Caching**: ISR (Incremental Static Regeneration) with 1-hour revalidation
-- **Fallback**: Static concert data for resilience
+- **Vercel Blob Storage**: JSON files for cities, venues, concerts
+- **ISR Caching**: 5-minute revalidation for concerts, 30-minute for static data
+- **Admin Interface**: Web-based management at `/admin`
+- **API Routes**: RESTful endpoints for CRUD operations
 
 ### Component Architecture
 - **Server Components**: Default for better performance

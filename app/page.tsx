@@ -63,7 +63,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-pink-900">
+    <div className="min-h-screen">
       <Header />
       
       <Controls
@@ -73,44 +73,53 @@ export default function Home() {
         isLoading={isLoading}
       />
 
-      {dataSource !== 'static' && (
-        <div className="mx-4 mt-2 p-2 bg-green-500/20 border border-green-500 text-white text-center rounded-lg">
-          ✅ Данные обновлены из {dataSource === 'dynamic' ? 'актуальных источников' : 'кеша'}
+      {dataSource !== 'static' && dataSource !== 'error-fallback' && (
+        <div className="mx-3 sm:mx-6 mt-1 sm:mt-2 p-2 sm:p-3 text-white text-center rounded-lg glass-dark text-sm sm:text-base">
+          ✅ Данные загружены из {dataSource === 'blob-storage' ? 'базы данных' : 'кеша'}
         </div>
       )}
 
-      <main className="flex flex-col lg:flex-row gap-6 p-6 max-w-7xl mx-auto">
-        <div className="flex-1 lg:flex-[2] h-[400px] lg:h-[600px]">
-          <Map 
-            concerts={filteredConcerts}
-            onMarkerClick={handleConcertClick}
-          />
-        </div>
+      <main className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
+          {/* Map Section */}
+          <div className="xl:col-span-2 order-1">
+            <div className="glass-card p-3 sm:p-4">
+              <div className="h-[300px] sm:h-[400px] xl:h-[500px] relative">
+                <Map 
+                  concerts={filteredConcerts}
+                  onMarkerClick={handleConcertClick}
+                />
+              </div>
+            </div>
+          </div>
 
-        <aside className="flex-1 lg:flex-[1]">
-          <ConcertList
-            concerts={filteredConcerts}
-            selectedConcertId={selectedConcertId}
-            onConcertClick={handleConcertClick}
-          />
-          <Stats concerts={filteredConcerts} />
-        </aside>
+          {/* Sidebar */}
+          <div className="xl:col-span-1 order-2 space-y-4 sm:space-y-6">
+            <ConcertList
+              concerts={filteredConcerts}
+              selectedConcertId={selectedConcertId}
+              onConcertClick={handleConcertClick}
+            />
+            <Stats concerts={filteredConcerts} />
+          </div>
+        </div>
       </main>
 
-      <div className="fixed bottom-6 left-6 bg-white/95 p-4 rounded-lg shadow-xl max-w-xs">
-        <h4 className="font-bold text-gray-800 mb-2">Легенда</h4>
-        <div className="space-y-2 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-green-500 rounded-full"></div>
-            <span>Будущий концерт</span>
+      {/* Legend */}
+      <div className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 glass-card p-3 sm:p-4 max-w-xs z-10 hidden sm:block">
+        <h4 className="font-bold mb-3 text-gray-800 text-sm sm:text-base">🗺️ Легенда</h4>
+        <div className="space-y-2 text-xs sm:text-sm">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-green-500"></div>
+            <span className="text-gray-700">Будущий концерт</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-gray-500 rounded-full"></div>
-            <span>Прошедший концерт</span>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-gray-400"></div>
+            <span className="text-gray-700">Прошедший концерт</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-lumen-orange rounded-full animate-pulse"></div>
-            <span>Ближайший концерт</span>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-red-500 pulse-glow"></div>
+            <span className="text-gray-700">Ближайший концерт</span>
           </div>
         </div>
       </div>
