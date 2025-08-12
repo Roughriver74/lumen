@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stigmata Concert Tour Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        #map {
+            height: 600px;
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .concert-list {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+        .concert-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .concert-item h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .concert-item p {
+            margin: 5px 0;
+            color: #666;
+        }
+        .concert-links {
+            margin-top: 10px;
+        }
+        .concert-links a {
+            display: inline-block;
+            margin-right: 10px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+        .concert-links a:hover {
+            background-color: #0056b3;
+        }
+        .error-message {
+            padding: 20px;
+            background-color: #fff3f3;
+            border: 1px solid #ffcdd2;
+            color: #d32f2f;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .arrow-icon {
+            color: #007bff;
+            font-size: 14px;
+            transform-origin: center;
+        }
+        .marker-date {
+            color: #007bff;
+            font-size: 12px;
+            margin-bottom: 2px;
+            font-weight: bold;
+        }
+        .arrow-line {
+            stroke-dasharray: 10, 20;
+            animation: dash 20s linear infinite;
+            marker-mid: url(#arrowhead);
+        }
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 300;
+            }
+        }
+        .leaflet-control-attribution {
+            display: none;  /* Полностью скрываем атрибуцию */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stigmata - Карта концертного тура</h1>
+        <div id="map"></div>
+        <div class="concert-list" id="concertList">
+            <div class="loading">Загрузка данных о концертах...</div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize map
+        const map = L.map('map').setView([55.7558, 37.6173], 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: ' OpenStreetMap'
+        }).addTo(map);
+
+        // Function to format date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const months = [
+                'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+                'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+            ];
+            return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+        }
+
+        // Function to create arrow line between two points
+        function createArrowLine(from, to) {
+            const latlngs = [
+                [to.lat, to.lon],     // Меняем местами from и to
+                [from.lat, from.lon]
+            ];
+
+            // Создаем SVG определение для стрелки
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+            const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+            
+            marker.setAttribute("id", "arrowhead");
+            marker.setAttribute("markerWidth", "10");
+            marker.setAttribute("markerHeight", "7");
+            marker.setAttribute("refX", "9");
+            marker.setAttribute("refY", "3.5");
+            marker.setAttribute("orient", "auto");
+            
+            const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+            polygon.setAttribute("points", "0 0, 10 3.5, 0 7");
+            polygon.setAttribute("fill", "#007bff");
+            
+            marker.appendChild(polygon);
+            defs.appendChild(marker);
+            svg.appendChild(defs);
+            document.body.appendChild(svg);
+
+            // Создаем линию с анимированными штрихами в направлении движения
+            const line = L.polyline(latlngs, {
+                color: '#007bff',
+                weight: 2,
+                opacity: 0.8,
+                dashArray: '10, 10',
+                dashOffset: '0',
+                className: 'arrow-line'
+            }).addTo(map);
+
+            // Добавляем анимацию смещения штрихов
+            let offset = 0;
+            setInterval(() => {
+                offset -= 1;
+                line.setStyle({ dashOffset: offset });
+            }, 50);
+        }
+
+        // Fetch and display concert data
+        fetch('/concerts')
+            .then(response => response.json())
+            .then(concerts => {
+                const markers = [];
+                const concertList = document.getElementById('concertList');
+                
+                const validConcerts = concerts.filter(concert => concert && concert.coordinates);
+                
+                if (validConcerts.length === 0) {
+                    concertList.innerHTML = '<div class="error-message">Не найдено концертов с координатами.</div>';
+                    return;
+                }
+
+                let html = '<h2>Расписание концертов</h2>';
+                
+                validConcerts.forEach((concert, index) => {
+                    // Add marker without date
+                    const marker = L.marker([concert.coordinates.lat, concert.coordinates.lon])
+                        .bindPopup(`
+                            <strong>${concert.city}</strong><br>
+                            ${concert.venue}<br>
+                            ${formatDate(concert.date)}<br>
+                            <a href="${concert.buy || concert.ticket_link}" 
+                               target="_blank" 
+                               style="display: inline-block; 
+                                      margin-top: 8px;
+                                      padding: 5px 10px;
+                                      background-color: #007bff;
+                                      color: white;
+                                      text-decoration: none;
+                                      border-radius: 3px;
+                                      font-size: 12px;">
+                                Купить билет
+                            </a>
+                        `)
+                        .addTo(map);
+                    markers.push(marker);
+
+                    // Add to list
+                    html += `
+                        <div class="concert-item">
+                            <h3>${concert.city}</h3>
+                            <p><strong>Дата:</strong> ${formatDate(concert.date)}</p>
+                            <p><strong>Место:</strong> ${concert.venue}</p>
+                            <div class="concert-links">
+                                <a href="${concert.buy || concert.ticket_link}" target="_blank">Купить билет</a>
+                            </div>
+                        </div>
+                    `;
+
+                    // Draw route line to next concert
+                    if (index < validConcerts.length - 1) {
+                        createArrowLine(concert.coordinates, validConcerts[index + 1].coordinates);
+                    }
+                });
+
+                concertList.innerHTML = html;
+
+                if (markers.length > 0) {
+                    const group = new L.featureGroup(markers);
+                    map.fitBounds(group.getBounds().pad(0.1));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('concertList').innerHTML = `
+                    <div class="error-message">
+                        Произошла ошибка при загрузке данных. Пожалуйста, попробуйте позже.
+                    </div>
+                `;
+            });
+    </script>
+</body>
+</html>

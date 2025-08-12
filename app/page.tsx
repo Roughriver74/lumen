@@ -9,16 +9,13 @@ import Stats from '@/components/Stats/Stats'
 import { Concert, FilterType } from '@/lib/types/concert'
 import { getStaticConcerts } from '@/lib/data/static-concerts'
 
-// Dynamic import for Map to avoid SSR issues with Leaflet
-const Map = dynamic(() => import('@/components/Map/Map'), {
-  ssr: false,
-  loading: () => <div className="w-full h-full bg-gray-800 animate-pulse rounded-xl" />
-})
+// Import Pigeon Maps - no SSR issues!
+import PigeonMap from '@/components/Map/PigeonMap'
 
 export default function Home() {
   const [concerts, setConcerts] = useState<Concert[]>(getStaticConcerts())
   const [filteredConcerts, setFilteredConcerts] = useState<Concert[]>(concerts)
-  const [filter, setFilter] = useState<FilterType>('all')
+  const [filter, setFilter] = useState<FilterType>('future')
   const [selectedConcertId, setSelectedConcertId] = useState<string>()
   const [isLoading, setIsLoading] = useState(false)
   const [dataSource, setDataSource] = useState<string>('static')
@@ -83,11 +80,12 @@ export default function Home() {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
           {/* Map Section */}
           <div className="xl:col-span-2 order-1">
-            <div className="glass-card p-3 sm:p-4">
+            <div className="glass-card overflow-hidden">
               <div className="h-[300px] sm:h-[400px] xl:h-[500px] relative">
-                <Map 
+                <PigeonMap 
                   concerts={filteredConcerts}
                   onMarkerClick={handleConcertClick}
+                  selectedConcertId={selectedConcertId}
                 />
               </div>
             </div>

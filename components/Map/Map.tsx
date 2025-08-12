@@ -33,12 +33,24 @@ export default function Map({ concerts, onMarkerClick }: MapProps) {
       }
 
       if (!mapRef.current && mapContainerRef.current) {
-        mapRef.current = L.map(mapContainerRef.current).setView([55.7558, 49.1284], 4)
+        mapRef.current = L.map(mapContainerRef.current, {
+          zoomControl: true,
+          scrollWheelZoom: true,
+          doubleClickZoom: true,
+          touchZoom: true
+        }).setView([55.7558, 49.1284], 4)
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '© OpenStreetMap contributors',
           maxZoom: 19
         }).addTo(mapRef.current)
+
+        // Force resize after map creation
+        setTimeout(() => {
+          if (mapRef.current) {
+            mapRef.current.invalidateSize()
+          }
+        }, 100)
       }
 
       // Clear existing markers and polyline
@@ -111,6 +123,25 @@ export default function Map({ concerts, onMarkerClick }: MapProps) {
     initializeMap()
   }, [concerts, onMarkerClick])
 
+  // Add ResizeObserver for responsive behavior
+  useEffect(() => {
+    if (!mapContainerRef.current || !mapRef.current) return
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (mapRef.current) {
+        setTimeout(() => {
+          mapRef.current?.invalidateSize()
+        }, 50)
+      }
+    })
+
+    resizeObserver.observe(mapContainerRef.current)
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [mapRef.current])
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -121,5 +152,5 @@ export default function Map({ concerts, onMarkerClick }: MapProps) {
     }
   }, [])
 
-  return <div ref={mapContainerRef} className="w-full h-full rounded-xl shadow-2xl border-2 border-white/20" />
+  return <div ref={mapContainerRef} className="w-full h-full map-container" />
 }

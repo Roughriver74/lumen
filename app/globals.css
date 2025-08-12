@@ -23,13 +23,112 @@ body {
 /* Leaflet CSS */
 @import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
 
+/* Map container styles */
+.map-container {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+}
+
+/* Pigeon Maps custom marker styles */
+.pigeon-marker-custom {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  font-size: 18px;
+  transform: translate(-16px, -16px);
+  z-index: 10;
+}
+
+.pigeon-marker-custom:hover {
+  transform: translate(-16px, -16px) scale(1.2);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.pigeon-marker-custom.future {
+  background-color: #4CAF50;
+}
+
+.pigeon-marker-custom.past {
+  background-color: #999999;
+  opacity: 0.7;
+}
+
+.pigeon-marker-custom.next {
+  background-color: #ff6b6b;
+  animation: pulse-glow 2s ease-in-out infinite;
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.5);
+}
+
+.pigeon-marker-custom.selected {
+  background-color: #9c27b0;
+  border-color: #fff;
+  box-shadow: 0 6px 20px rgba(156, 39, 176, 0.6);
+}
+
+/* Animated route lines */
+.route-line {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.route-line::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 40%,
+    #4CAF50 50%,
+    #4CAF50 60%,
+    transparent 100%
+  );
+  animation: route-flow 3s linear infinite;
+}
+
+@keyframes route-flow {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+.route-line.dashed {
+  background: repeating-linear-gradient(
+    90deg,
+    #4CAF50 0px,
+    #4CAF50 10px,
+    transparent 10px,
+    transparent 20px
+  );
+  background-size: 20px 3px;
+  animation: route-dash 2s linear infinite;
+}
+
+/* Route dash animation removed - now using SVG dashOffset */
+
 /* Leaflet container fixes */
 .leaflet-container {
   height: 100% !important;
   width: 100% !important;
   z-index: 1;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
 }
 
 /* Ensure map attribution is visible */
